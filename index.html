@@ -237,7 +237,7 @@
     /* ARCHIVE LOGS CARD */
     .log-item {
       background: var(--bg); border: 1px solid var(--card-border); border-radius: 8px;
-      padding: 10px; margin-bottom: 8px; font-size: 12.5px; line-height: 1.5;
+      padding: 12px; margin-bottom: 8px; font-size: 12.5px; line-height: 1.5;
     }
 
     /* FLAPPY CANVAS */
@@ -307,7 +307,7 @@
       </div>
 
       <button class="nav-item active" onclick="switchTab('demon')"><span>😈 Doubt Demon</span></button>
-      <button class="nav-item" onclick="switchTab('sage')"><span>🕊️️ The Seraph Sage</span></button>
+      <button class="nav-item" onclick="switchTab('sage')"><span>🕊️ The Seraph Sage</span></button>
       <button class="nav-item" onclick="switchTab('logs')"><span>📜 Debate Archives</span></button>
       <button class="nav-item" onclick="switchTab('lectures')"><span>🎬 Lectures & Hub</span></button>
       <button class="nav-item" onclick="switchTab('notes')"><span>📚 Vault Notes</span></button>
@@ -670,7 +670,7 @@
       }
     }
 
-    // --- 3. DEDICATED LOGS & ARCHIVE STORAGE ---
+    // --- 3. DEDICATED LOGS & RESUME FUNCTIONALITY ---
     function getArchiveKey() {
       const u = currentUser ? currentUser.name.toLowerCase().replace(/\s+/g, '_') : 'guest';
       return `nex_archives_${u}`;
@@ -702,14 +702,47 @@
       }
       box.innerHTML = list.map(item => `
         <div class="log-item">
-          <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; font-weight:700;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; margin-bottom:6px; font-weight:700;">
             <span style="color:${item.type === 'Demon' ? 'var(--accent)' : 'var(--sage-accent)'};">[${item.type}] ${item.topic}</span>
-            <span style="color:var(--text-muted);">${item.time}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="color:var(--text-muted); font-weight:normal;">${item.time}</span>
+              <button class="btn btn-secondary" style="font-size:10px; padding:3px 7px;" onclick="resumeArchivedSession(${item.id})">▶ Resume</button>
+            </div>
           </div>
           <div style="color:var(--text-muted); margin-bottom:4px;"><b>You:</b> ${item.query}</div>
           <div><b>Response:</b> ${cleanRender(item.response)}</div>
         </div>
       `).join('');
+    }
+
+    // Resume Chat from Archive Log
+    function resumeArchivedSession(id) {
+      const list = JSON.parse(localStorage.getItem(getArchiveKey()) || '[]');
+      const item = list.find(l => l.id === id);
+      if (!item) return;
+
+      if (item.type === 'Demon') {
+        switchTab('demon');
+        activeDemonTopic = item.topic;
+        lastDemonTrapStatement = item.response;
+        document.getElementById('demonTopicInput').value = item.topic;
+        const chat = document.getElementById('demonChatBox');
+        chat.innerHTML = `
+          <div style="text-align:center; font-size:11px; color:var(--gold); margin-bottom:6px;">--- RESUMED SESSION: ${item.topic} ---</div>
+          <div class="user-message"><b>You:</b> ${cleanRender(item.query)}</div>
+          <div class="demon-message"><b>Doubt Demon:</b> ${cleanRender(item.response)}</div>
+        `;
+        chat.scrollTop = chat.scrollHeight;
+      } else {
+        switchTab('sage');
+        const chat = document.getElementById('sageChatHistory');
+        chat.innerHTML = `
+          <div style="text-align:center; font-size:11px; color:var(--gold); margin-bottom:6px;">--- RESUMED SESSION: ${item.topic} ---</div>
+          <div class="user-message"><b>You:</b> ${cleanRender(item.query)}</div>
+          <div class="sage-message"><b>Seraph Sage:</b> ${cleanRender(item.response)}</div>
+        `;
+        chat.scrollTop = chat.scrollHeight;
+      }
     }
 
     function clearAllArchives() {
@@ -945,7 +978,7 @@ Directly counter and dismantle the Demon's trap for the student.
       } catch (e) { p.innerText = e.message; }
     }
 
-    // --- 8. YOUTUBE CINEMA & ERROR 153 FIX ---
+    // --- 8. YOUTUBE CINEMA & EMBED FIX ---
     function extractYouTubeId(url) {
       if (!url) return '';
       let videoId = '';
@@ -970,7 +1003,6 @@ Directly counter and dismantle the Demon's trap for the student.
       const id = extractYouTubeId(u);
 
       if (id) {
-        // Pure embed without conflicting origin parameters that trigger code 153
         p.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?rel=0" style="width:100%; height:100%; border:none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
         fallbackBox.style.display = 'block';
         extLink.href = `https://www.youtube.com/watch?v=${id}`;
@@ -1158,7 +1190,7 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
       birdVel = jumpPower;
     }
 
-    // Event listener for canvas touch/click & spacebar
+    // Controls
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && document.getElementById('tab-arcade').classList.contains('active')) {
         e.preventDefault();
@@ -1188,7 +1220,7 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
       flapCtx.fill();
       flapCtx.shadowBlur = 0;
 
-      // Pipes update & draw
+      // Pipes
       for (let i = 0; i < pipes.length; i++) {
         let p = pipes[i];
         p.x -= 2;
@@ -1221,7 +1253,7 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
         }
       }
 
-      // Remove off-screen pipes and spawn new
+      // Despawn & Spawn Pipes
       if (pipes.length && pipes[0].x < -50) pipes.shift();
       if (pipes.length === 0 || pipes[pipes.length - 1].x < 180) {
         let topHeight = Math.floor(Math.random() * 140) + 50;
@@ -1230,12 +1262,12 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
         pipes.push({ x: 340, top: topHeight, bottom: bottomHeight });
       }
 
-      // Ground/Ceiling Collision
+      // Bounds
       if (birdY > flapCanvas.height - 11 || birdY < 11) {
         isGameOver = true;
       }
 
-      // Draw HUD Score
+      // HUD
       flapCtx.fillStyle = '#ffffff';
       flapCtx.font = 'bold 14px sans-serif';
       flapCtx.fillText(`Score: ${flapScore}`, 14, 26);
