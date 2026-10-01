@@ -6,6 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>NexStudy MAX — by Priyansh</title>
   
+  <!-- PWA Manifest & App Logo Config -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%230a0a0c'/><path d='M120 380 L120 140 L210 270 L300 140 L300 380' fill='none' stroke='%23ef4444' stroke-width='38' stroke-linecap='round' stroke-linejoin='round'/><path d='M340 380 L400 140 L460 380' fill='none' stroke='%2338bdf8' stroke-width='38' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
   <!-- Math Formula & Symbol Rendering (KaTeX) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -565,6 +572,13 @@
 
   <!-- SCRIPT ENGINE -->
   <script>
+    // --- 0. SERVICE WORKER REGISTRATION (PWA BOOT) ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration error:', err));
+      });
+    }
+
     // --- 1. BOOT & SYSTEM STATE ---
     window.addEventListener('DOMContentLoaded', () => {
       const fill = document.getElementById('splashFill');
@@ -681,7 +695,7 @@
       let list = JSON.parse(localStorage.getItem(key) || '[]');
       list.unshift({
         id: Date.now(),
-        type: type, // 'Demon' | 'Sage' | 'Counter'
+        type: type,
         topic: topic,
         query: query,
         response: response,
@@ -715,7 +729,6 @@
       `).join('');
     }
 
-    // Resume Chat from Archive Log
     function resumeArchivedSession(id) {
       const list = JSON.parse(localStorage.getItem(getArchiveKey()) || '[]');
       const item = list.find(l => l.id === id);
@@ -841,7 +854,7 @@
       if (t === 'arcade') initFlappyGame();
     }
 
-    // --- 6. DOUBT DEMON (EGO, DEFEAT RESPECT & DUAL AWARENESS) ---
+    // --- 6. DOUBT DEMON (EGO, RESPECT & DUAL AWARENESS) ---
     let activeDemonTopic = "";
     let lastDemonTrapStatement = "";
     let hasUsedSageAssistanceInCurrentDebate = false;
@@ -913,7 +926,7 @@ Evaluate the student's defense:
       }
     }
 
-    // --- 7. THE SERAPH SAGE & DEMON-COUNTER INVOCATION ---
+    // --- 7. THE SERAPH SAGE & DEMON-COUNTER ---
     const SAGE_PROMPT = `You are The Seraph Sage, the master educator of NexStudy MAX.
 RULES:
 1. You bring peace, empathy, and mathematical elegance.
@@ -978,7 +991,7 @@ Directly counter and dismantle the Demon's trap for the student.
       } catch (e) { p.innerText = e.message; }
     }
 
-    // --- 8. YOUTUBE CINEMA & EMBED FIX ---
+    // --- 8. YOUTUBE CINEMA & EMBED ---
     function extractYouTubeId(url) {
       if (!url) return '';
       let videoId = '';
@@ -1073,7 +1086,7 @@ Directly counter and dismantle the Demon's trap for the student.
       } catch(e) { d.innerText = e.message; }
     }
 
-    // --- 10. CUSTOM MARKS EXAM SUITE ---
+    // --- 10. CUSTOM MARKS EXAM ---
     let curCustomPaper = '';
     async function generateCustomExamPaper() {
       const t = document.getElementById('testTopicInput').value.trim() || 'Work and Energy';
@@ -1154,7 +1167,7 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
       } catch(e) { box.innerText = e.message; }
     }
 
-    // --- 12. CYBER FLAP ARCADE GAME (HTML5 CANVAS) ---
+    // --- 12. CYBER FLAP ARCADE GAME ---
     let flapCanvas, flapCtx;
     let birdY = 180, birdVel = 0;
     let gravity = 0.38, jumpPower = -6.5;
@@ -1175,7 +1188,6 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
       flapScore = 0;
       isGameOver = false;
 
-      // Initial pipe pair
       pipes.push({ x: 340, top: 120, bottom: 220 });
 
       if (flapAnimationId) cancelAnimationFrame(flapAnimationId);
@@ -1190,7 +1202,6 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
       birdVel = jumpPower;
     }
 
-    // Controls
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && document.getElementById('tab-arcade').classList.contains('active')) {
         e.preventDefault();
@@ -1207,11 +1218,9 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
       flapCtx.fillStyle = '#06060a';
       flapCtx.fillRect(0, 0, flapCanvas.width, flapCanvas.height);
 
-      // Bird Physics
       birdVel += gravity;
       birdY += birdVel;
 
-      // Draw Neon Bird
       flapCtx.fillStyle = '#ef4444';
       flapCtx.shadowColor = '#ef4444';
       flapCtx.shadowBlur = 12;
@@ -1220,7 +1229,6 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
       flapCtx.fill();
       flapCtx.shadowBlur = 0;
 
-      // Pipes
       for (let i = 0; i < pipes.length; i++) {
         let p = pipes[i];
         p.x -= 2;
@@ -1229,20 +1237,16 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
         flapCtx.shadowColor = '#38bdf8';
         flapCtx.shadowBlur = 8;
 
-        // Top Pipe
         flapCtx.fillRect(p.x, 0, 42, p.top);
-        // Bottom Pipe
         flapCtx.fillRect(p.x, flapCanvas.height - p.bottom, 42, p.bottom);
         flapCtx.shadowBlur = 0;
 
-        // Collision Check
         if (50 + 11 > p.x && 50 - 11 < p.x + 42) {
           if (birdY - 11 < p.top || birdY + 11 > flapCanvas.height - p.bottom) {
             isGameOver = true;
           }
         }
 
-        // Score pass
         if (p.x === 48) {
           flapScore++;
           if (flapScore > flapBestScore) {
@@ -1253,7 +1257,6 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
         }
       }
 
-      // Despawn & Spawn Pipes
       if (pipes.length && pipes[0].x < -50) pipes.shift();
       if (pipes.length === 0 || pipes[pipes.length - 1].x < 180) {
         let topHeight = Math.floor(Math.random() * 140) + 50;
@@ -1262,12 +1265,10 @@ Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords miss
         pipes.push({ x: 340, top: topHeight, bottom: bottomHeight });
       }
 
-      // Bounds
       if (birdY > flapCanvas.height - 11 || birdY < 11) {
         isGameOver = true;
       }
 
-      // HUD
       flapCtx.fillStyle = '#ffffff';
       flapCtx.font = 'bold 14px sans-serif';
       flapCtx.fillText(`Score: ${flapScore}`, 14, 26);
