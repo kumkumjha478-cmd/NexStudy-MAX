@@ -1,0 +1,1263 @@
+<!-- filename: index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>NexStudy MAX — by Priyansh</title>
+  
+  <!-- Math Formula & Symbol Rendering (KaTeX) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #0a0a0c;
+      --card-border: #1a1a22;
+      --card-hover: #15151e;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #ef4444; /* Demon Crimson */
+      --accent-glow: rgba(239, 68, 68, 0.4);
+      --accent-secondary: #991b1b;
+      --sage-accent: #38bdf8; /* Seraph Cyan */
+      --sage-glow: rgba(56, 189, 248, 0.35);
+      --success: #10b981;
+      --gold: #fbbf24;
+      --sidebar-width: 250px;
+    }
+
+    body.theme-oled {
+      --bg: #000000;
+      --card: #08080a;
+      --card-border: #16161a;
+      --card-hover: #121217;
+      --text: #ffffff;
+      --text-muted: #888888;
+      --accent: #ef4444;
+      --accent-glow: rgba(239, 68, 68, 0.45);
+      --sage-accent: #38bdf8;
+    }
+
+    body.theme-minimal-white {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --card-border: #e2e8f0;
+      --card-hover: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #dc2626;
+      --accent-glow: rgba(220, 38, 38, 0.2);
+      --sage-accent: #0284c7;
+    }
+
+    body.theme-cyberpunk {
+      --bg: #030706;
+      --card: #061410;
+      --card-border: #0e3025;
+      --card-hover: #0c231b;
+      --text: #ecfdf5;
+      --text-muted: #6ee7b7;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.4);
+      --sage-accent: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      max-width: 100%;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+
+    body { display: flex; flex-direction: column; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+
+    /* ANIMATIONS */
+    @keyframes demonPulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 0.8); }
+    }
+
+    @keyframes sageBreathe {
+      0%, 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.3); }
+      50% { box-shadow: 0 0 28px rgba(56, 189, 248, 0.4); border-color: rgba(56, 189, 248, 0.7); }
+    }
+
+    .demon-glow-panel { animation: demonPulse 4s infinite ease-in-out; }
+    .sage-glow-panel { animation: sageBreathe 4.5s infinite ease-in-out; }
+
+    /* SPLASH SCREEN */
+    #splashScreen {
+      position: fixed; inset: 0; background: var(--bg); z-index: 10000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    .splash-emblem {
+      width: 72px; height: 72px; border-radius: 20px;
+      background: linear-gradient(135deg, var(--accent), var(--sage-accent));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 40px var(--accent-glow); margin-bottom: 16px;
+    }
+    .splash-title { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; }
+    .splash-byline { font-size: 12px; color: var(--accent); font-weight: 700; margin-top: 4px; }
+    .splash-track { width: 140px; height: 3px; background: var(--card-border); border-radius: 6px; margin-top: 20px; overflow: hidden; }
+    .splash-fill { width: 0%; height: 100%; background: var(--accent); transition: width 1s ease; }
+
+    /* LAYOUT */
+    .app-layout { display: flex; width: 100vw; height: 100dvh; overflow: hidden; }
+    .sidebar {
+      width: var(--sidebar-width); background-color: var(--card);
+      border-right: 1px solid var(--card-border); display: flex; flex-direction: column;
+      padding: 16px 10px; gap: 4px; flex-shrink: 0;
+    }
+    .brand-box { padding: 4px 6px 14px 6px; border-bottom: 1px solid var(--card-border); margin-bottom: 8px; }
+    .brand-head { display: flex; align-items: center; gap: 8px; }
+    .brand-avatar {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent), var(--sage-accent));
+      display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; color: #fff;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 8px; background: transparent; border: none;
+      color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer;
+      text-align: left; width: 100%; transition: all 0.2s;
+    }
+    .nav-item.active { background-color: var(--card-border); color: var(--accent); font-weight: 700; }
+
+    .main-viewport {
+      flex: 1; display: flex; flex-direction: column; height: 100dvh;
+      overflow-y: auto; overflow-x: hidden; width: 100%;
+    }
+    .top-header {
+      padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--card-border); background-color: var(--bg);
+      position: sticky; top: 0; z-index: 40; width: 100%; flex-shrink: 0;
+    }
+    .content-container {
+      padding: 12px; width: 100%; margin: 0 auto; flex: 1; padding-bottom: 80px;
+    }
+    .tab-view { display: none; width: 100%; }
+    .tab-view.active { display: block; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .panel {
+      background-color: var(--card); border: 1px solid var(--card-border);
+      border-radius: 14px; padding: 14px; margin-bottom: 14px; width: 100%;
+    }
+    .panel-title {
+      font-size: 14px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+
+    .btn {
+      background-color: var(--accent); color: #ffffff; border: none;
+      padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px; white-space: nowrap; transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-secondary { background-color: var(--card-border); color: var(--text); }
+    .btn-engine { background: linear-gradient(135deg, var(--accent), var(--sage-accent)); color: #ffffff; font-weight: 700; }
+    .btn-demon { background: linear-gradient(135deg, #ef4444, #7f1d1d); color: #fff; font-weight: 800; }
+    .btn-sage { background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; font-weight: 800; }
+
+    .input-field {
+      background-color: var(--bg); border: 1px solid var(--card-border);
+      color: var(--text); padding: 9px 12px; border-radius: 8px; font-size: 13px; outline: none; width: 100%;
+    }
+    .input-field:focus { border-color: var(--accent); }
+    .flex-row { display: flex; gap: 6px; width: 100%; align-items: center; }
+
+    /* CHAT LOGS */
+    .chat-box {
+      background: var(--bg); border: 1px solid var(--card-border); border-radius: 10px;
+      padding: 12px; min-height: 250px; max-height: 380px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; width: 100%;
+    }
+    .demon-message {
+      background: rgba(239, 68, 68, 0.08); border-left: 3px solid var(--accent);
+      padding: 10px 12px; border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.5; word-break: break-word;
+    }
+    .sage-message {
+      background: rgba(56, 189, 248, 0.08); border-left: 3px solid var(--sage-accent);
+      padding: 10px 12px; border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.5; word-break: break-word;
+    }
+    .user-message {
+      background: var(--card-border); padding: 9px 12px; border-radius: 8px;
+      align-self: flex-end; max-width: 88%; font-size: 13px; line-height: 1.4; word-break: break-word;
+    }
+
+    /* AUTH MODAL */
+    .auth-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px); z-index: 10001; display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .auth-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+    .auth-card {
+      background: var(--card); border: 1px solid var(--card-border); width: 100%; max-width: 350px;
+      border-radius: 16px; padding: 22px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; gap: 14px;
+    }
+    .auth-btn-oauth {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+      border: 1px solid var(--card-border); background: var(--bg); color: var(--text);
+    }
+    .auth-btn-insta { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: #fff; border: none; }
+    .auth-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 11px; gap: 8px; }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--card-border); }
+
+    /* XP & USER BADGES */
+    .user-badge {
+      display: flex; align-items: center; gap: 6px; background: var(--card-border);
+      padding: 4px 8px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 700;
+    }
+    .avatar-fallback {
+      width: 18px; height: 18px; border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff;
+    }
+    .xp-pill {
+      background: rgba(251, 191, 36, 0.15); color: var(--gold); border: 1px solid rgba(251, 191, 36, 0.4);
+      padding: 3px 7px; border-radius: 6px; font-size: 10.5px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;
+    }
+
+    /* ARCHIVE LOGS CARD */
+    .log-item {
+      background: var(--bg); border: 1px solid var(--card-border); border-radius: 8px;
+      padding: 10px; margin-bottom: 8px; font-size: 12.5px; line-height: 1.5;
+    }
+
+    /* FLAPPY CANVAS */
+    #flappyCanvas {
+      background: #050508;
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+      max-width: 100%;
+      touch-action: manipulation;
+    }
+
+    /* MOBILE BOTTOM APP DOCK */
+    .mobile-nav {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
+      background-color: rgba(10, 10, 12, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--card-border); z-index: 1000; justify-content: space-around; align-items: center;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .mobile-nav-item {
+      background: none; border: none; color: var(--text-muted); font-size: 10px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; padding: 6px 0; cursor: pointer;
+    }
+    .mobile-nav-item.active { color: var(--accent); font-weight: 700; }
+    .mobile-nav-item svg { width: 18px; height: 18px; }
+
+    @media (max-width: 850px) {
+      .sidebar { display: none; }
+      .mobile-nav { display: flex; }
+      .main-viewport { height: 100dvh; }
+      .content-container { padding: 10px 10px 85px 10px; }
+      .top-header h1 { font-size: 13.5px !important; }
+      .btn { padding: 7px 10px; font-size: 11.5px; }
+    }
+  </style>
+</head>
+<body class="theme-oled" id="appBody">
+
+  <!-- SPLASH SCREEN -->
+  <div id="splashScreen">
+    <div class="splash-emblem">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+    </div>
+    <div class="splash-title">NexStudy MAX</div>
+    <div class="splash-byline">Demon vs. Seraph Sage (by Priyansh)</div>
+    <div class="splash-track"><div class="splash-fill" id="splashFill"></div></div>
+  </div>
+
+  <div class="app-layout">
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar">
+      <div class="brand-box">
+        <div class="brand-head">
+          <div class="brand-avatar">MAX</div>
+          <div>
+            <h2 style="font-size: 14px; font-weight: 800;">NexStudy MAX</h2>
+            <div style="font-size: 10.5px; color: var(--accent); font-weight: 700;">by Priyansh</div>
+          </div>
+        </div>
+        <div style="margin-top: 8px;">
+          <span class="xp-pill" id="sidebarXpBadge">⚡ 0 XP (Novice)</span>
+        </div>
+      </div>
+
+      <button class="nav-item active" onclick="switchTab('demon')"><span>😈 Doubt Demon</span></button>
+      <button class="nav-item" onclick="switchTab('sage')"><span>🕊️️ The Seraph Sage</span></button>
+      <button class="nav-item" onclick="switchTab('logs')"><span>📜 Debate Archives</span></button>
+      <button class="nav-item" onclick="switchTab('lectures')"><span>🎬 Lectures & Hub</span></button>
+      <button class="nav-item" onclick="switchTab('notes')"><span>📚 Vault Notes</span></button>
+      <button class="nav-item" onclick="switchTab('test')"><span>📝 Custom Exam</span></button>
+      <button class="nav-item" onclick="switchTab('syllabus')"><span>📊 Syllabus Tracker</span></button>
+      <button class="nav-item" onclick="switchTab('arcade')"><span>🕹️ Cyber Flap</span></button>
+    </aside>
+
+    <!-- Main Viewport -->
+    <main class="main-viewport">
+      <header class="top-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h1 id="viewTitle" style="font-size: 14px; font-weight: 800; color: var(--accent);">😈 Doubt Demon</h1>
+          <span class="xp-pill" id="headerXpBadge">⚡ 0 XP</span>
+        </div>
+
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <div id="authTriggerArea">
+            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="openAuthModal()">Login</button>
+          </div>
+          <select id="themeSelector" class="input-field" style="width: auto; padding: 4px 6px; font-size: 11px;" onchange="setInterfaceTheme(this.value)">
+            <option value="theme-oled">OLED Black</option>
+            <option value="theme-minimal-white">White</option>
+            <option value="theme-cyberpunk">Emerald</option>
+          </select>
+          <button class="btn btn-engine" style="padding: 4px 8px; font-size: 11px;" onclick="promptEngineKey()">AI Key</button>
+        </div>
+      </header>
+
+      <div class="content-container">
+
+        <!-- TAB 1: RUTHLESS DOUBT DEMON -->
+        <div id="tab-demon" class="tab-view active">
+          <div class="panel demon-glow-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div class="panel-title" style="color: var(--accent); margin-bottom:0;">The Doubt Demon — Zero Mercy Interrogator</div>
+              <button class="btn btn-sage" style="font-size: 10px; padding: 4px 8px;" onclick="callSageToCounterDemon()">🕊️ Call Sage to Counter</button>
+            </div>
+            <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px;">
+              Win the debate without the Sage's help to shatter the Demon's pride and force his grudging respect. Calling the Sage forfeits his praise!
+            </p>
+
+            <div class="flex-row" style="margin-bottom: 10px;">
+              <input type="text" id="demonTopicInput" class="input-field" placeholder="Topic to contest (e.g. Newton 3rd Law, Mole Concept, Osmosis)..." />
+              <button class="btn btn-demon" onclick="summonDemon()">Summon</button>
+            </div>
+
+            <div id="demonChatBox" class="chat-box">
+              <div class="demon-message">
+                <b>Doubt Demon:</b> Step forward into NexStudy MAX, human. Name your concept. Let's see if you can defend it on your own merits, or if you'll run whimpering to that soft Seraph Sage the second your logic fractures.
+              </div>
+            </div>
+
+            <div class="flex-row">
+              <input type="text" id="demonReplyInput" class="input-field" placeholder="Defend your premise alone..." onkeydown="if(event.key==='Enter') sendDemonCounter()" />
+              <button class="btn btn-demon" onclick="sendDemonCounter()">Counter</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: THE SERAPH SAGE -->
+        <div id="tab-sage" class="tab-view">
+          <div class="panel sage-glow-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div class="panel-title" style="color: var(--sage-accent); margin-bottom:0;">The Seraph Sage — Master Educator</div>
+              <button class="btn btn-demon" style="font-size: 10px; padding: 4px 8px;" onclick="switchTab('demon')">😈 Face Demon</button>
+            </div>
+            <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px;">
+              Direct mathematical clarity, step-by-step solutions, and derivations free from cynicism.
+            </p>
+
+            <div id="sageChatHistory" class="chat-box">
+              <div class="sage-message">
+                <b>Seraph Sage:</b> Peace be upon your studies. Ask any question, derivation, or numerical problem freely, and we shall dismantle it with pure reason.
+              </div>
+            </div>
+
+            <div class="flex-row">
+              <input type="text" id="sageUserInput" class="input-field" placeholder="Ask your doubt, numerical, or derivation..." onkeydown="if(event.key==='Enter') askSeraphSage()" />
+              <button class="btn btn-sage" onclick="askSeraphSage()">Illuminate</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: DEDICATED DEBATE ARCHIVES -->
+        <div id="tab-logs" class="tab-view">
+          <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div class="panel-title" style="margin-bottom:0;">📜 Persistent Debate & Solution Archives</div>
+              <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="clearAllArchives()">Clear Logs</button>
+            </div>
+            <div id="archiveContainer" style="max-height: 480px; overflow-y: auto;"></div>
+          </div>
+        </div>
+
+        <!-- TAB 4: LECTURES & SAVED PLAYLIST HUB -->
+        <div id="tab-lectures" class="tab-view">
+          <div class="panel">
+            <div class="panel-title">Lecture Cinema & High-Yield Recap</div>
+            <div class="flex-row" style="margin-bottom: 10px;">
+              <input type="text" id="lectureUrlInput" class="input-field" placeholder="YouTube Video URL..." />
+              <button class="btn" onclick="playLecture()">Play</button>
+              <button class="btn btn-secondary" onclick="generateAiLectureRecap()">Recap</button>
+            </div>
+            
+            <div style="width: 100%; aspect-ratio: 16/9; background:#000; border-radius:8px; overflow:hidden;" id="lecturePlayer">
+              <div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted); font-size:12px;">Paste YouTube URL to Stream</div>
+            </div>
+            
+            <div id="lectureFallbackLink" style="display:none; margin-top:8px; text-align:right;">
+              <a id="extYtLink" href="#" target="_blank" style="color:var(--sage-accent); font-size:12px; text-decoration:none;">Open Directly in YouTube ↗</a>
+            </div>
+
+            <div id="lectureRecapBox" style="display: none; margin-top: 10px; background: var(--bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.5;"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Your Saved NexStudy Playlists</div>
+            <div class="flex-row" style="margin-bottom: 10px;">
+              <input type="text" id="playlistTitleInput" class="input-field" style="flex:1;" placeholder="Video Title (e.g. Motion Physics One Shot)..." />
+              <input type="text" id="playlistUrlInput" class="input-field" style="flex:1;" placeholder="YouTube URL..." />
+              <button class="btn btn-secondary" onclick="saveToPlaylist()">+ Add</button>
+            </div>
+            <div id="playlistContainer"></div>
+          </div>
+        </div>
+
+        <!-- TAB 5: NOTES VAULT -->
+        <div id="tab-notes" class="tab-view">
+          <div class="panel">
+            <div class="panel-title">High-Yield Formula & Keyword Vault</div>
+            <input type="text" id="notesTopicInput" class="input-field" style="margin-bottom: 8px;" placeholder="Topic (e.g. Tissues, Motion, Gravitation)..." />
+            <div class="flex-row" style="margin-bottom: 10px; flex-wrap: wrap;">
+              <button class="btn btn-engine" style="flex:1;" onclick="generateLiveNotes('cheatsheet')">Cheatsheet</button>
+              <button class="btn btn-secondary" style="flex:1;" onclick="generateLiveNotes('detailed')">In-Depth</button>
+              <button class="btn btn-secondary" style="flex:1;" onclick="generateLiveNotes('keywords')">Keywords</button>
+            </div>
+            <div id="notesDisplay" style="background: var(--bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.6; min-height: 180px;">Enter topic above to extract notes.</div>
+          </div>
+        </div>
+
+        <!-- TAB 6: CUSTOM MARKS EXAM -->
+        <div id="tab-test" class="tab-view">
+          <div class="panel">
+            <div class="panel-title">Adaptive Custom Marks Exam</div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 6px; margin-bottom: 8px;">
+              <input type="text" id="testTopicInput" class="input-field" placeholder="Chapter name..." />
+              <input type="number" id="testCustomMarks" class="input-field" placeholder="Marks" value="20" min="5" max="100" />
+              <select id="testModeSelect" class="input-field">
+                <option value="Standard">NCERT / Board</option>
+                <option value="Trap">Competitive Trap</option>
+              </select>
+              <button class="btn btn-engine" onclick="generateCustomExamPaper()">Generate</button>
+            </div>
+
+            <div id="examPaperCard" style="display:none; margin-top: 10px;">
+              <div id="paperContent" style="background:var(--bg); border:1px solid var(--card-border); border-radius:8px; padding:12px; font-size:13px; line-height:1.6; margin-bottom:10px;"></div>
+              <textarea id="studentAnswerText" class="input-field" rows="4" placeholder="Type your full solutions here..."></textarea>
+              <button class="btn btn-engine" style="margin-top:8px; width:100%;" onclick="gradeCustomExamAnswers()">Submit & Grade</button>
+            </div>
+            <div id="gradeReportCard" style="display:none; margin-top: 10px; background:var(--bg); border:1px solid var(--card-border); border-radius:8px; padding:12px; font-size:13px; line-height:1.6;"></div>
+          </div>
+        </div>
+
+        <!-- TAB 7: EDITABLE SYLLABUS -->
+        <div id="tab-syllabus" class="tab-view">
+          <div class="panel">
+            <div class="panel-title">Syllabus Matrix & Backlog Recovery</div>
+            <div class="flex-row" style="margin-bottom: 10px;">
+              <input type="text" id="newChapterInput" class="input-field" placeholder="Add chapter name..." onkeydown="if(event.key==='Enter') addNewChapter()" />
+              <button class="btn btn-secondary" onclick="addNewChapter()">+ Add</button>
+            </div>
+            <div id="syllabusContainer"></div>
+            <button class="btn btn-engine" style="width: 100%; margin-top: 10px;" onclick="runAiBacklogStrategist()">Generate 7-Day Rescue Plan</button>
+            <div id="backlogStrategyBox" style="display:none; margin-top: 10px; background:var(--bg); border:1px solid var(--card-border); border-radius:8px; padding:12px; font-size:13px; line-height:1.6;"></div>
+          </div>
+        </div>
+
+        <!-- TAB 8: CYBER FLAP ARCADE (REAL GAME) -->
+        <div id="tab-arcade" class="tab-view">
+          <div class="panel" style="text-align: center;">
+            <div class="panel-title" style="justify-content: center;">🕹️ Cyber Flap — Break Time Arcade</div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Tap screen or press Spacebar to fly through neon obstacles. Beat your high score!</p>
+            
+            <div style="position: relative; display: inline-block;">
+              <canvas id="flappyCanvas" width="320" height="420"></canvas>
+            </div>
+
+            <div style="margin-top: 10px; display: flex; justify-content: center; gap: 8px;">
+              <button class="btn btn-engine" onclick="initFlappyGame()">Start / Restart</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- AUTH POPUP -->
+  <div class="auth-overlay" id="authOverlay" onclick="if(event.target===this) closeAuthModal()">
+    <div class="auth-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:10px; font-weight:800; color:var(--accent); text-transform:uppercase; letter-spacing:0.5px;">NexStudy ID</span>
+        <button onclick="closeAuthModal()" style="background:none; border:none; color:var(--text-muted); font-size:16px; cursor:pointer;">✕</button>
+      </div>
+
+      <div class="auth-header" style="text-align: center;">
+        <h3 style="font-size:16px; font-weight:800;">Sign In & Sync</h3>
+        <p style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">Persist your Demon debates, Sage solutions, playlists & XP score.</p>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="auth-btn-oauth" onclick="handleSocialAuth('Google')">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <button class="auth-btn-oauth auth-btn-insta" onclick="handleSocialAuth('Instagram')">
+          <span>Continue with Instagram</span>
+        </button>
+      </div>
+
+      <div class="auth-divider">or student handle</div>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <input type="text" id="authUsernameInput" class="input-field" placeholder="Enter student name..." />
+        <button class="btn btn-engine" style="width:100%; padding:9px;" onclick="handleDirectLogin()">Login / Sync Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM DOCK -->
+  <nav class="mobile-nav">
+    <button class="mobile-nav-item active" onclick="switchTab('demon')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Demon</span>
+    </button>
+    <button class="mobile-nav-item" onclick="switchTab('sage')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      <span>Sage</span>
+    </button>
+    <button class="mobile-nav-item" onclick="switchTab('logs')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+      <span>Logs</span>
+    </button>
+    <button class="mobile-nav-item" onclick="switchTab('lectures')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+      <span>Lec</span>
+    </button>
+    <button class="mobile-nav-item" onclick="switchTab('arcade')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+      <span>Flap</span>
+    </button>
+  </nav>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    // --- 1. BOOT & SYSTEM STATE ---
+    window.addEventListener('DOMContentLoaded', () => {
+      const fill = document.getElementById('splashFill');
+      const splash = document.getElementById('splashScreen');
+      if (fill) fill.style.width = '100%';
+      const savedTheme = localStorage.getItem('nex_theme') || 'theme-oled';
+      setInterfaceTheme(savedTheme, false);
+      renderAuthUI();
+      renderArchives();
+      renderPlaylists();
+      setTimeout(() => { if (splash) { splash.style.opacity = '0'; splash.style.visibility = 'hidden'; } }, 1000);
+    });
+
+    function setInterfaceTheme(t, s = true) {
+      document.getElementById('appBody').className = t;
+      document.getElementById('themeSelector').value = t;
+      if (s) localStorage.setItem('nex_theme', t);
+    }
+
+    function cleanRender(t) {
+      if (!t) return '';
+      t = t.replace(/\$\$([\s\S]+?)\$\$/g, (m, eq) => {
+        try { return katex.renderToString(eq.trim(), { displayMode: true, throwOnError: false }); } catch(e) { return eq; }
+      });
+      t = t.replace(/\$([^\$\n]+?)\$/g, (m, eq) => {
+        try { return katex.renderToString(eq.trim(), { displayMode: false, throwOnError: false }); } catch(e) { return eq; }
+      });
+      t = t.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+      t = t.replace(/\*([^\*]+?)\*/g, '<i>$1</i>');
+      return t.replace(/\n/g, '<br/>');
+    }
+
+    // --- 2. AUTHENTICATION & XP ENGINE ---
+    let currentUser = JSON.parse(localStorage.getItem('nex_user') || 'null');
+    let userXp = parseInt(localStorage.getItem('nex_xp') || '0', 10);
+
+    function addXp(amount) {
+      userXp += amount;
+      localStorage.setItem('nex_xp', userXp.toString());
+      updateXpBadges();
+    }
+
+    function updateXpBadges() {
+      let rank = "Novice";
+      if (userXp > 100) rank = "Scholar";
+      if (userXp > 300) rank = "Concept Slayer";
+      if (userXp > 600) rank = "Apex Titan";
+
+      const txt = `⚡ ${userXp} XP (${rank})`;
+      document.getElementById('headerXpBadge').innerText = txt;
+      document.getElementById('sidebarXpBadge').innerText = txt;
+    }
+    updateXpBadges();
+
+    function openAuthModal() { document.getElementById('authOverlay').classList.add('open'); }
+    function closeAuthModal() { document.getElementById('authOverlay').classList.remove('open'); }
+
+    function renderAuthUI() {
+      const area = document.getElementById('authTriggerArea');
+      if (!area) return;
+      if (currentUser) {
+        area.innerHTML = `
+          <div class="user-badge" onclick="handleUserLogout()" title="Logged in as ${currentUser.name}. Tap to log out.">
+            <div class="avatar-fallback">${currentUser.name.charAt(0).toUpperCase()}</div>
+            <span>${currentUser.name.split(' ')[0]}</span>
+          </div>
+        `;
+      } else {
+        area.innerHTML = `<button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="openAuthModal()">Login</button>`;
+      }
+    }
+
+    function handleSocialAuth(provider) {
+      const userName = prompt(`[${provider} Connect]\nEnter your name to authenticate with ${provider}:`, "Priyansh");
+      if (!userName || !userName.trim()) return;
+      currentUser = { name: userName.trim(), provider: provider, loginAt: new Date().toISOString() };
+      saveUserSession();
+    }
+
+    function handleDirectLogin() {
+      const input = document.getElementById('authUsernameInput');
+      const val = input.value.trim();
+      if (!val) { alert("Please enter your name."); return; }
+      currentUser = { name: val, provider: 'Direct', loginAt: new Date().toISOString() };
+      saveUserSession();
+    }
+
+    function saveUserSession() {
+      localStorage.setItem('nex_user', JSON.stringify(currentUser));
+      closeAuthModal();
+      renderAuthUI();
+      renderArchives();
+      addXp(50);
+      alert(`Welcome, ${currentUser.name}! Session synced.`);
+    }
+
+    function handleUserLogout() {
+      if (confirm(`Do you want to log out from ${currentUser.name}? Your study logs remain safely cached.`)) {
+        localStorage.removeItem('nex_user');
+        currentUser = null;
+        renderAuthUI();
+        renderArchives();
+      }
+    }
+
+    // --- 3. DEDICATED LOGS & ARCHIVE STORAGE ---
+    function getArchiveKey() {
+      const u = currentUser ? currentUser.name.toLowerCase().replace(/\s+/g, '_') : 'guest';
+      return `nex_archives_${u}`;
+    }
+
+    function pushArchiveRecord(type, topic, query, response) {
+      const key = getArchiveKey();
+      let list = JSON.parse(localStorage.getItem(key) || '[]');
+      list.unshift({
+        id: Date.now(),
+        type: type, // 'Demon' | 'Sage' | 'Counter'
+        topic: topic,
+        query: query,
+        response: response,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      if (list.length > 50) list.pop();
+      localStorage.setItem(key, JSON.stringify(list));
+      renderArchives();
+    }
+
+    function renderArchives() {
+      const box = document.getElementById('archiveContainer');
+      if (!box) return;
+      const list = JSON.parse(localStorage.getItem(getArchiveKey()) || '[]');
+      if (list.length === 0) {
+        box.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:12.5px;">No recorded debates or solutions in archive yet.</div>`;
+        return;
+      }
+      box.innerHTML = list.map(item => `
+        <div class="log-item">
+          <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; font-weight:700;">
+            <span style="color:${item.type === 'Demon' ? 'var(--accent)' : 'var(--sage-accent)'};">[${item.type}] ${item.topic}</span>
+            <span style="color:var(--text-muted);">${item.time}</span>
+          </div>
+          <div style="color:var(--text-muted); margin-bottom:4px;"><b>You:</b> ${item.query}</div>
+          <div><b>Response:</b> ${cleanRender(item.response)}</div>
+        </div>
+      `).join('');
+    }
+
+    function clearAllArchives() {
+      if (confirm("Are you sure you want to clear your stored debate logs?")) {
+        localStorage.removeItem(getArchiveKey());
+        renderArchives();
+      }
+    }
+
+    // --- 4. GEMINI AI ENGINE ---
+    let ENGINE_KEY = localStorage.getItem('nex_key') || localStorage.getItem('sf_me_key') || localStorage.getItem('sf_engine_key') || '';
+    function promptEngineKey() {
+      const key = prompt("Enter your Google Gemini API Key:", ENGINE_KEY);
+      if (key !== null) {
+        ENGINE_KEY = key.trim();
+        localStorage.setItem('nex_key', ENGINE_KEY);
+        alert(ENGINE_KEY ? "AI Engine Connected." : "Key cleared.");
+      }
+    }
+
+    const CANDIDATE_MODELS = [
+      'gemini-3.5-flash-lite',
+      'gemini-3.8-flash'
+    ];
+
+    async function queryAiEngine(promptText, systemInstruction = "") {
+      if (!ENGINE_KEY) {
+        alert("Connect your AI Key first via top button.");
+        promptEngineKey();
+        if (!ENGINE_KEY) throw new Error("No API key linked.");
+      }
+
+      let lastError = null;
+      for (const model of CANDIDATE_MODELS) {
+        try {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${ENGINE_KEY}`;
+          const payload = { contents: [{ parts: [{ text: promptText }] }] };
+          if (systemInstruction) {
+            payload.system_instruction = { parts: [{ text: systemInstruction }] };
+          }
+
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error?.message || `HTTP ${res.status}`);
+          }
+
+          const data = await res.json();
+          if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+            return data.candidates[0].content.parts[0].text;
+          }
+        } catch (e) {
+          lastError = e;
+        }
+      }
+      throw new Error(lastError?.message || "AI Busy. Check key or retry.");
+    }
+
+    // --- 5. TAB SWITCHING ---
+    function switchTab(t) {
+      document.querySelectorAll('.tab-view').forEach(e => e.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+      document.querySelectorAll('.mobile-nav-item').forEach(e => e.classList.remove('active'));
+
+      const target = document.getElementById('tab-' + t);
+      if (target) target.classList.add('active');
+
+      const titles = {
+        demon: '😈 Doubt Demon',
+        sage: '🕊️ The Seraph Sage',
+        logs: '📜 Debate Archives',
+        lectures: '🎬 Lectures & Hub',
+        notes: '📚 Vault Notes',
+        test: '📝 Custom Exam',
+        syllabus: '📊 Syllabus',
+        arcade: '🕹️ Cyber Flap'
+      };
+      document.getElementById('viewTitle').innerText = titles[t] || 'NexStudy MAX';
+
+      const map = ['demon', 'sage', 'logs', 'lectures', 'notes', 'test', 'syllabus', 'arcade'];
+      const idx = map.indexOf(t);
+      if (document.querySelectorAll('.sidebar .nav-item')[idx]) {
+        document.querySelectorAll('.sidebar .nav-item')[idx].classList.add('active');
+      }
+      const mobTabs = ['demon', 'sage', 'logs', 'lectures', 'arcade'];
+      const mIdx = mobTabs.indexOf(t);
+      if (mIdx !== -1 && document.querySelectorAll('.mobile-nav-item')[mIdx]) {
+        document.querySelectorAll('.mobile-nav-item')[mIdx].classList.add('active');
+      }
+
+      if (t === 'arcade') initFlappyGame();
+    }
+
+    // --- 6. DOUBT DEMON (EGO, DEFEAT RESPECT & DUAL AWARENESS) ---
+    let activeDemonTopic = "";
+    let lastDemonTrapStatement = "";
+    let hasUsedSageAssistanceInCurrentDebate = false;
+
+    const DEMON_PROMPT = `You are the Ruthless Doubt Demon of NexStudy MAX.
+RULES:
+1. TOPIC ANCHOR: You must strictly stay on the student's topic. Do not wander.
+2. DYNAMIC LENGTH: Vary your output length! Give 1-line sharp insults, 1-para deceptive paradoxes, or full 8-line conceptual dissections.
+3. EGO AND DEFEAT CONDITION:
+   - If the student's argument is flawed: Rip them apart with dark, sarcastic condescension.
+   - IF THE STUDENT ACTUALLY BREAKS YOUR TRAP OR PROVES ROCK-SOLID LOGIC:
+     * Check if they fought alone (NO SAGE HELP): Your demonic ego takes a severe hit. You MUST reluctantly concede and respect them with cynical bitterness (e.g., "Fine... you actually saw through the flaw without running away, you stubborn brat. You win this round. Take your victory before I change my mind.").
+     * If they cheated or needed help: Mock them ruthlessly.
+4. SAGE AWARENESS: You despise "The Seraph Sage". If the student acts weak, taunt them to run to their angelic babysitter.`;
+
+    async function summonDemon() {
+      const topic = document.getElementById('demonTopicInput').value.trim();
+      const chat = document.getElementById('demonChatBox');
+      if (!topic) { alert("Give the Demon a topic to contest."); return; }
+      activeDemonTopic = topic;
+      hasUsedSageAssistanceInCurrentDebate = false;
+
+      const loader = `<div class="demon-message" style="color:var(--accent);">Summoning the Demon for "${topic}"...</div>`;
+      chat.innerHTML += loader;
+
+      try {
+        const res = await queryAiEngine(`The student claims mastery over "${topic}". Test their foundations with a brutal counter-intuitive riddle or flawed premise question. Anchor strictly to "${topic}". Vary your output length naturally.`, DEMON_PROMPT);
+        lastDemonTrapStatement = res;
+        const html = `<div class="demon-message"><b>Doubt Demon:</b> ${cleanRender(res)}</div>`;
+        chat.innerHTML = chat.innerHTML.replace(loader, '') + html;
+        chat.scrollTop = chat.scrollHeight;
+        pushArchiveRecord('Demon', topic, 'Summon', res);
+        addXp(15);
+      } catch (e) {
+        chat.innerHTML += `<div style="color:var(--danger);">${e.message}</div>`;
+      }
+    }
+
+    async function sendDemonCounter() {
+      const inp = document.getElementById('demonReplyInput');
+      const chat = document.getElementById('demonChatBox');
+      const txt = inp.value.trim();
+      if (!txt) return;
+
+      const uHtml = `<div class="user-message"><b>You:</b> ${cleanRender(txt)}</div>`;
+      chat.innerHTML += uHtml;
+      inp.value = '';
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const promptInstruction = `Topic Anchor: "${activeDemonTopic}".
+Previous Demon Trap: "${lastDemonTrapStatement}".
+Student's Counter-Defense: "${txt}".
+Has student used Sage in this debate? ${hasUsedSageAssistanceInCurrentDebate ? "YES (They had Sage help - DO NOT PRAISE THEM. Taunt them for hiding behind the Sage!)" : "NO (They fought all alone with pure brainpower!)"}.
+
+Evaluate the student's defense:
+- If they are completely correct and saw through the trick ALONE: Reluctantly concede with wounded demonic pride ("Yeah brat you win...", "Fine, take your victory", grudging respect).
+- If they are flawed or shallow: Destroy their reasoning with biting sarcasm.`;
+
+        const res = await queryAiEngine(promptInstruction, DEMON_PROMPT);
+        lastDemonTrapStatement = res;
+        const dHtml = `<div class="demon-message"><b>Doubt Demon:</b> ${cleanRender(res)}</div>`;
+        chat.innerHTML += dHtml;
+        chat.scrollTop = chat.scrollHeight;
+        pushArchiveRecord('Demon', activeDemonTopic, txt, res);
+        addXp(25);
+      } catch (e) {
+        chat.innerHTML += `<div style="color:var(--danger);">${e.message}</div>`;
+      }
+    }
+
+    // --- 7. THE SERAPH SAGE & DEMON-COUNTER INVOCATION ---
+    const SAGE_PROMPT = `You are The Seraph Sage, the master educator of NexStudy MAX.
+RULES:
+1. You bring peace, empathy, and mathematical elegance.
+2. DUAL AWARENESS: You know the Doubt Demon tests students maliciously. When called, guide them with calm confidence.`;
+
+    async function callSageToCounterDemon() {
+      if (!lastDemonTrapStatement) {
+        alert("Engage with the Demon first before summoning the Sage!");
+        return;
+      }
+      hasUsedSageAssistanceInCurrentDebate = true;
+      switchTab('sage');
+
+      const chat = document.getElementById('sageChatHistory');
+      const summonMsg = `<div class="sage-message" style="color:var(--sage-accent);">🕊️ <b>Seraph Sage Invoked:</b> Analyzing the Demon's trap on "${activeDemonTopic}"...</div>`;
+      chat.innerHTML += summonMsg;
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const promptText = `The student is currently being interrogated by the Doubt Demon on the topic: "${activeDemonTopic}".
+Here is the Demon's exact deceptive trap:
+"${lastDemonTrapStatement}"
+
+Directly counter and dismantle the Demon's trap for the student.
+1. Expose the flaw in the Demon's trick or twisted premise.
+2. Give the exact rock-solid concept and formula so the student understands the reality.
+3. Remind the student that the Demon's ego has locked praise now, but their understanding is safe.`;
+
+        const res = await queryAiEngine(promptText, SAGE_PROMPT);
+        const sHtml = `<div class="sage-message"><b>Seraph Sage (Direct Demon Counter):</b><br/>${cleanRender(res)}</div>`;
+        chat.innerHTML += sHtml;
+        chat.scrollTop = chat.scrollHeight;
+        pushArchiveRecord('Counter', activeDemonTopic, 'Invoked Sage against Demon trap', res);
+        addXp(20);
+      } catch (e) { chat.innerHTML += `<div style="color:var(--danger);">${e.message}</div>`; }
+    }
+
+    async function askSeraphSage() {
+      const inp = document.getElementById('sageUserInput');
+      const chat = document.getElementById('sageChatHistory');
+      const doubt = inp.value.trim();
+      if (!doubt) return;
+
+      const uHtml = `<div class="user-message"><b>You:</b> ${cleanRender(doubt)}</div>`;
+      chat.innerHTML += uHtml;
+      inp.value = '';
+      chat.scrollTop = chat.scrollHeight;
+
+      const p = document.createElement('div');
+      p.style.color = "var(--sage-accent)";
+      p.innerText = "Illuminating solution step by step...";
+      chat.appendChild(p);
+
+      try {
+        const res = await queryAiEngine(doubt, SAGE_PROMPT);
+        p.remove();
+        const sHtml = `<div class="sage-message"><b>Seraph Sage:</b><br/>${cleanRender(res)}</div>`;
+        chat.innerHTML += sHtml;
+        chat.scrollTop = chat.scrollHeight;
+        pushArchiveRecord('Sage', 'General Study Doubt', doubt, res);
+        addXp(20);
+      } catch (e) { p.innerText = e.message; }
+    }
+
+    // --- 8. YOUTUBE CINEMA & ERROR 153 FIX ---
+    function extractYouTubeId(url) {
+      if (!url) return '';
+      let videoId = '';
+      if (url.includes('v=')) {
+        videoId = url.split('v=')[1].split('&')[0];
+      } else if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1].split('?')[0];
+      } else if (url.includes('/embed/')) {
+        videoId = url.split('/embed/')[1].split('?')[0];
+      } else if (url.length === 11) {
+        videoId = url;
+      }
+      return videoId.trim();
+    }
+
+    function playLecture(overrideUrl = null) {
+      const u = overrideUrl || document.getElementById('lectureUrlInput').value.trim();
+      const p = document.getElementById('lecturePlayer');
+      const fallbackBox = document.getElementById('lectureFallbackLink');
+      const extLink = document.getElementById('extYtLink');
+
+      const id = extractYouTubeId(u);
+
+      if (id) {
+        // Pure embed without conflicting origin parameters that trigger code 153
+        p.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?rel=0" style="width:100%; height:100%; border:none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        fallbackBox.style.display = 'block';
+        extLink.href = `https://www.youtube.com/watch?v=${id}`;
+      } else {
+        alert("Please enter a valid YouTube video link.");
+      }
+    }
+
+    async function generateAiLectureRecap() {
+      const u = document.getElementById('lectureUrlInput').value.trim();
+      const box = document.getElementById('lectureRecapBox');
+      if (!u) { alert("Paste a video link or topic first."); return; }
+      box.style.display = 'block';
+      box.innerText = "Extracting high-yield recap...";
+      try {
+        const r = await queryAiEngine(`Provide: 1. Core Summary, 2. Formulas/Definitions, 3. 3 High-Yield Exam Traps for lecture: "${u}"`);
+        box.innerHTML = cleanRender(r);
+        addXp(15);
+      } catch(e) { box.innerText = e.message; }
+    }
+
+    let playlists = JSON.parse(localStorage.getItem('nex_playlists') || JSON.stringify([
+      { title: "One Shot Motion Physics", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
+    ]));
+
+    function renderPlaylists() {
+      const c = document.getElementById('playlistContainer');
+      if (!c) return;
+      if (playlists.length === 0) {
+        c.innerHTML = `<div style="color:var(--text-muted); font-size:12px;">No lectures saved yet. Add one above!</div>`;
+        return;
+      }
+      c.innerHTML = playlists.map((item, idx) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:var(--bg); border:1px solid var(--card-border); border-radius:8px; margin-bottom:6px;">
+          <span style="font-size:12.5px; font-weight:600; cursor:pointer;" onclick="playLecture('${item.url}')">▶ ${item.title}</span>
+          <button onclick="deletePlaylist(${idx})" style="background:none; border:none; color:var(--accent); cursor:pointer;">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function saveToPlaylist() {
+      const title = document.getElementById('playlistTitleInput').value.trim();
+      const url = document.getElementById('playlistUrlInput').value.trim();
+      if (!title || !url) { alert("Enter both title and URL."); return; }
+      playlists.push({ title, url });
+      localStorage.setItem('nex_playlists', JSON.stringify(playlists));
+      document.getElementById('playlistTitleInput').value = '';
+      document.getElementById('playlistUrlInput').value = '';
+      renderPlaylists();
+      addXp(10);
+    }
+
+    function deletePlaylist(i) {
+      playlists.splice(i, 1);
+      localStorage.setItem('nex_playlists', JSON.stringify(playlists));
+      renderPlaylists();
+    }
+
+    // --- 9. NOTES VAULT ---
+    async function generateLiveNotes(type) {
+      const topic = document.getElementById('notesTopicInput').value.trim() || 'Tissues';
+      const d = document.getElementById('notesDisplay');
+      d.innerText = `Generating ${type} for "${topic}"...`;
+      try {
+        const res = await queryAiEngine(`Provide exam-focused ${type} notes for "${topic}". High-yield, clear headings.`);
+        d.innerHTML = cleanRender(res);
+        addXp(15);
+      } catch(e) { d.innerText = e.message; }
+    }
+
+    // --- 10. CUSTOM MARKS EXAM SUITE ---
+    let curCustomPaper = '';
+    async function generateCustomExamPaper() {
+      const t = document.getElementById('testTopicInput').value.trim() || 'Work and Energy';
+      const marks = document.getElementById('testCustomMarks').value || '20';
+      const mode = document.getElementById('testModeSelect').value;
+      const c = document.getElementById('paperContent');
+
+      document.getElementById('examPaperCard').style.display = 'block';
+      c.innerText = `Drafting ${marks} Marks ${mode} Paper for "${t}"...`;
+
+      try {
+        curCustomPaper = await queryAiEngine(`Create an exact ${marks}-Marks ${mode} exam paper for chapter "${t}".
+Include question numbers, clear mark breakdown [e.g. 2 Marks, 3 Marks, 5 Marks] totaling exactly ${marks} marks. Do not include answers.`);
+        c.innerHTML = cleanRender(curCustomPaper);
+        addXp(20);
+      } catch(e) { c.innerText = e.message; }
+    }
+
+    async function gradeCustomExamAnswers() {
+      const ans = document.getElementById('studentAnswerText').value.trim();
+      const marks = document.getElementById('testCustomMarks').value || '20';
+      const rep = document.getElementById('gradeReportCard');
+      if (!ans) { alert("Enter your written answers first."); return; }
+
+      rep.style.display = 'block';
+      rep.innerText = "Evaluating against official grading rubrics...";
+
+      try {
+        const r = await queryAiEngine(`Grade this submission out of exactly ${marks} marks.
+PAPER:
+${curCustomPaper}
+STUDENT ANSWERS:
+${ans}
+Provide: 1. Total Score, 2. Question-by-question marks, 3. Crucial keywords missed, 4. Perfect Model Answers.`);
+        rep.innerHTML = cleanRender(r);
+        addXp(50);
+      } catch(e) { rep.innerText = e.message; }
+    }
+
+    // --- 11. EDITABLE SYLLABUS ---
+    let syllabus = JSON.parse(localStorage.getItem('nex_syl') || JSON.stringify([
+      { name: "Tissues (Biology)", done: false },
+      { name: "Motion (Physics)", done: true }
+    ]));
+
+    function renderSyllabus() {
+      const c = document.getElementById('syllabusContainer');
+      c.innerHTML = syllabus.map((ch, i) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 10px; background:var(--bg); border:1px solid var(--card-border); border-radius:8px; margin-bottom:6px;">
+          <span style="font-size:13px; font-weight:600;">${ch.name}</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" ${ch.done ? 'checked' : ''} onchange="toggleSyl(${i})">
+            <button onclick="delSyl(${i})" style="background:none; border:none; color:var(--accent); font-size:14px; cursor:pointer;">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    function toggleSyl(i) { syllabus[i].done = !syllabus[i].done; localStorage.setItem('nex_syl', JSON.stringify(syllabus)); if(syllabus[i].done) addXp(25); }
+    function addNewChapter() {
+      const inp = document.getElementById('newChapterInput');
+      if (!inp.value.trim()) return;
+      syllabus.push({ name: inp.value.trim(), done: false });
+      localStorage.setItem('nex_syl', JSON.stringify(syllabus));
+      inp.value = '';
+      renderSyllabus();
+      addXp(10);
+    }
+    function delSyl(i) { syllabus.splice(i, 1); localStorage.setItem('nex_syl', JSON.stringify(syllabus)); renderSyllabus(); }
+    renderSyllabus();
+
+    async function runAiBacklogStrategist() {
+      const box = document.getElementById('backlogStrategyBox');
+      box.style.display = 'block';
+      box.innerText = "Drafting recovery roadmap...";
+      try {
+        const p = await queryAiEngine(`Make a fast 7-day rescue roadmap for pending chapters: ${JSON.stringify(syllabus.filter(s=>!s.done))}`);
+        box.innerHTML = cleanRender(p);
+      } catch(e) { box.innerText = e.message; }
+    }
+
+    // --- 12. CYBER FLAP ARCADE GAME (HTML5 CANVAS) ---
+    let flapCanvas, flapCtx;
+    let birdY = 180, birdVel = 0;
+    let gravity = 0.38, jumpPower = -6.5;
+    let pipes = [];
+    let flapScore = 0;
+    let flapBestScore = parseInt(localStorage.getItem('nex_flap_best') || '0', 10);
+    let isGameOver = false;
+    let flapAnimationId = null;
+
+    function initFlappyGame() {
+      flapCanvas = document.getElementById('flappyCanvas');
+      if (!flapCanvas) return;
+      flapCtx = flapCanvas.getContext('2d');
+
+      birdY = 180;
+      birdVel = 0;
+      pipes = [];
+      flapScore = 0;
+      isGameOver = false;
+
+      // Initial pipe pair
+      pipes.push({ x: 340, top: 120, bottom: 220 });
+
+      if (flapAnimationId) cancelAnimationFrame(flapAnimationId);
+      flapLoop();
+    }
+
+    function flapJump() {
+      if (isGameOver) {
+        initFlappyGame();
+        return;
+      }
+      birdVel = jumpPower;
+    }
+
+    // Event listener for canvas touch/click & spacebar
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && document.getElementById('tab-arcade').classList.contains('active')) {
+        e.preventDefault();
+        flapJump();
+      }
+    });
+
+    document.getElementById('flappyCanvas')?.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      flapJump();
+    });
+
+    function flapLoop() {
+      flapCtx.fillStyle = '#06060a';
+      flapCtx.fillRect(0, 0, flapCanvas.width, flapCanvas.height);
+
+      // Bird Physics
+      birdVel += gravity;
+      birdY += birdVel;
+
+      // Draw Neon Bird
+      flapCtx.fillStyle = '#ef4444';
+      flapCtx.shadowColor = '#ef4444';
+      flapCtx.shadowBlur = 12;
+      flapCtx.beginPath();
+      flapCtx.arc(50, birdY, 11, 0, Math.PI * 2);
+      flapCtx.fill();
+      flapCtx.shadowBlur = 0;
+
+      // Pipes update & draw
+      for (let i = 0; i < pipes.length; i++) {
+        let p = pipes[i];
+        p.x -= 2;
+
+        flapCtx.fillStyle = '#38bdf8';
+        flapCtx.shadowColor = '#38bdf8';
+        flapCtx.shadowBlur = 8;
+
+        // Top Pipe
+        flapCtx.fillRect(p.x, 0, 42, p.top);
+        // Bottom Pipe
+        flapCtx.fillRect(p.x, flapCanvas.height - p.bottom, 42, p.bottom);
+        flapCtx.shadowBlur = 0;
+
+        // Collision Check
+        if (50 + 11 > p.x && 50 - 11 < p.x + 42) {
+          if (birdY - 11 < p.top || birdY + 11 > flapCanvas.height - p.bottom) {
+            isGameOver = true;
+          }
+        }
+
+        // Score pass
+        if (p.x === 48) {
+          flapScore++;
+          if (flapScore > flapBestScore) {
+            flapBestScore = flapScore;
+            localStorage.setItem('nex_flap_best', flapBestScore.toString());
+          }
+          addXp(5);
+        }
+      }
+
+      // Remove off-screen pipes and spawn new
+      if (pipes.length && pipes[0].x < -50) pipes.shift();
+      if (pipes.length === 0 || pipes[pipes.length - 1].x < 180) {
+        let topHeight = Math.floor(Math.random() * 140) + 50;
+        let gap = 110;
+        let bottomHeight = flapCanvas.height - topHeight - gap;
+        pipes.push({ x: 340, top: topHeight, bottom: bottomHeight });
+      }
+
+      // Ground/Ceiling Collision
+      if (birdY > flapCanvas.height - 11 || birdY < 11) {
+        isGameOver = true;
+      }
+
+      // Draw HUD Score
+      flapCtx.fillStyle = '#ffffff';
+      flapCtx.font = 'bold 14px sans-serif';
+      flapCtx.fillText(`Score: ${flapScore}`, 14, 26);
+      flapCtx.fillStyle = '#fbbf24';
+      flapCtx.fillText(`Best: ${flapBestScore}`, 240, 26);
+
+      if (isGameOver) {
+        flapCtx.fillStyle = 'rgba(0,0,0,0.75)';
+        flapCtx.fillRect(0, 0, flapCanvas.width, flapCanvas.height);
+        flapCtx.fillStyle = '#ef4444';
+        flapCtx.font = 'bold 20px sans-serif';
+        flapCtx.textAlign = 'center';
+        flapCtx.fillText('GAME OVER', flapCanvas.width / 2, 190);
+        flapCtx.fillStyle = '#f3f4f6';
+        flapCtx.font = '12px sans-serif';
+        flapCtx.fillText('Tap or press Space to retry', flapCanvas.width / 2, 220);
+        flapCtx.textAlign = 'left';
+        return;
+      }
+
+      flapAnimationId = requestAnimationFrame(flapLoop);
+    }
+  </script>
+</body>
+</html>
