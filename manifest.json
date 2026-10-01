@@ -1,0 +1,18 @@
+{
+  "name": "NexStudy MAX",
+  "short_name": "NexStudy",
+  "description": "Demon vs. Seraph Sage AI Academic Engine by Priyansh",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%230a0a0c'/><rect x='16' y='16' width='480' height='480' rx='112' fill='none' stroke='%23ef4444' stroke-width='8' stroke-opacity='0.4'/><path d='M120 380 L120 140 L210 270 L300 140 L300 380' fill='none' stroke='%23ef4444' stroke-width='38' stroke-linecap='round' stroke-linejoin='round'/><path d='M340 380 L400 140 L460 380' fill='none' stroke='%2338bdf8' stroke-width='38' stroke-linecap='round' stroke-linejoin='round'/><line x1='362' y1='300' x2='438' y2='300' stroke='%2338bdf8' stroke-width='32' stroke-linecap='round'/><circle cx='256' cy='430' r='12' fill='%23fbbf24'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
